@@ -15,17 +15,21 @@ function App() {
     await tf.setBackend("webgl");
     await tf.ready();
 
-    const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh
-    const detectorConfig = {
-      runtime: 'mediapipe',
-      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
-      enableSimd: true
-    }
-    const net = await faceLandmarksDetection.createDetector(model, detectorConfig)
+    try {
+      const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh
+      const detectorConfig = {
+        runtime: 'mediapipe',
+        solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
+        enableSimd: true
+      }
+      const net = await faceLandmarksDetection.createDetector(model, detectorConfig)
     
-    setInterval(() => {
-      detect(net)
-    }, 100)
+      setInterval(() => {
+        detect(net)
+      }, 100)
+    } catch (error) {
+      console.error('Error initializing facemash', error)
+    }
   }
 
   const detect = async (net) => {
@@ -58,14 +62,83 @@ function App() {
           keypoints.forEach((keypoint) => {
             const [x, y] = [keypoint.x, keypoint.y];
             ctx.beginPath();
-            ctx.arc(x, y, 2, 0, 2 * Math.PI);
-            ctx.fillStyle = 'aqua'
+            ctx.arc(x, y, 2, 0, 1 * Math.PI);
+            ctx.fillStyle = 'yellow'
             ctx.fill();
           });
+
+          // drawAvatar(ctx, keypoints)
         });
       }
     }
   }
+
+  // const drawAvatar = (ctx, keypoints) => {
+
+  //   const leftEye = keypoints.slice(33, 133)
+  //   const rightEye = keypoints.slice(362, 462)
+  //   const mouth = keypoints.slice(13, 14)
+
+  //   const leftEyeCenter = leftEye.reduce(
+  //     (acc, point) => {
+  //       acc.x += point.x / leftEye.length;
+  //       acc.y += point.y / leftEye.length;
+  //       return acc;
+  //     },
+  //     { x: 0, y: 0 }
+  //   );
+
+  //   const leftEyeGradient = ctx.createRadialGradient(
+  //     leftEyeCenter.x,
+  //     leftEyeCenter.y,
+  //     5,
+  //     leftEyeCenter.x,
+  //     leftEyeCenter.y,
+  //     20
+  //   );
+  //   leftEyeGradient.addColorStop(0, 'blue');
+  //   leftEyeGradient.addColorStop(1, 'rgba(0, 0, 255, 0.5)');
+
+  //   ctx.beginPath();
+  //   ctx.ellipse(leftEyeCenter.x, leftEyeCenter.y, 20, 15, 0, 0, Math.PI * 2);
+  //   ctx.fillStyle = leftEyeGradient;
+  //   ctx.fill();
+
+  //   ctx.beginPath();
+  //   rightEye.forEach((point, index) => {
+  //     const x = point.x;
+  //     const y = point.y;
+  //     if (index === 0) ctx.moveTo(x, y);
+  //     else ctx.lineTo(x, y);
+  //   });
+  //   ctx.closePath();
+  //   ctx.strokeStyle = 'lime';
+  //   ctx.lineWidth = 3;
+  //   ctx.stroke();
+
+  //   mouth.forEach((point) => {
+  //     const { x, y } = point;
+  //     const radius = 15;
+  //     const spikes = 5;
+  //     const innerRadius = 7;
+
+  //     ctx.beginPath();
+  //     for (let i = 0; i < spikes * 2; i++) {
+  //       const angle = (Math.PI / spikes) * i;
+  //       const r = i % 2 === 0 ? radius : innerRadius;
+  //       const xPos = x + r * Math.cos(angle);
+  //       const yPos = y + r * Math.sin(angle);
+  //       if (i === 0) ctx.moveTo(xPos, yPos);
+  //       else ctx.lineTo(xPos, yPos);
+  //     }
+  //     ctx.closePath();
+  //     ctx.fillStyle = 'red';
+  //     ctx.fill();
+  //     ctx.strokeStyle = 'darkred';
+  //     ctx.lineWidth = 2;
+  //     ctx.stroke();
+  //   });
+  // }
 
   useEffect(() => {
     runFacemash()
